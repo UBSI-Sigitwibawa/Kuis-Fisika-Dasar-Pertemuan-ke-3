@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Fisika Dasar – Pertemuan 3: GLB dan GLBB</title>
+<style>
+:root{
+  --navy:#12296b; --navy2:#1d3f9a; --bg:#eef2fb; --card:#fff; --ink:#1b2337; --muted:#5b6785;
+  --ok:#14804a; --okbg:#e5f6ec; --bad:#c0392b; --badbg:#fdecea; --glb:#d9a400; --glbb:#e8691c; --line:#d5dcee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:22px 16px;text-align:center}
+header h1{margin:0 0 4px;font-size:1.45rem}
+header p{margin:0;opacity:.9;font-size:.95rem}
+.wrap{max-width:860px;margin:0 auto;padding:18px 14px 60px}
+.card{background:var(--card);border-radius:14px;box-shadow:0 2px 10px rgba(18,41,107,.10);padding:22px;margin-bottom:18px}
+.hidden{display:none!important}
+h2{margin:0 0 12px;color:var(--navy);font-size:1.2rem}
+label{display:block;font-weight:600;margin:14px 0 5px;font-size:.92rem}
+input,select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:1rem;font-family:inherit;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(29,63,154,.15)}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:12px 22px;font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--navy2)}
+.btn.sec{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.sec:hover{background:#eaf0ff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.green{background:var(--ok)}
+.err{color:var(--bad);font-size:.88rem;margin-top:8px;min-height:1.2em}
+.info{background:#f3f6ff;border-left:4px solid var(--navy2);padding:12px 14px;border-radius:8px;font-size:.92rem;color:#2c3a63;margin-bottom:6px}
+.info ul{margin:6px 0 0 18px;padding:0}
+.topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px}
+.topbar .in{max-width:860px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.88rem}
+.bar{height:8px;background:#e1e7f6;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--navy2),#4a78e0);width:0;transition:width .25s}
+.qno{color:var(--navy2);font-weight:700;font-size:.9rem;margin-bottom:6px}
+.qtext{font-size:1.1rem;font-weight:600;margin-bottom:14px}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:.12s;background:#fff}
+.opt:hover{border-color:var(--navy2);background:#f5f8ff}
+.opt.sel{border-color:var(--navy2);background:#e8efff;box-shadow:0 0 0 2px rgba(29,63,154,.15)}
+.opt .l{flex:0 0 28px;height:28px;border-radius:50%;background:#e1e7f6;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+.opt.sel .l{background:var(--navy2);color:#fff}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:6px}
+.grid button{padding:8px 0;border:1.5px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-weight:600;color:var(--navy);font-family:inherit}
+.grid button.ans{background:var(--navy2);color:#fff;border-color:var(--navy2)}
+.grid button.cur{outline:3px solid #ffb703}
+@media(max-width:560px){.grid{grid-template-columns:repeat(6,1fr)}}
+/* result */
+.score{text-align:center;padding:10px 0 6px}
+.score .big{font-size:3.4rem;font-weight:800;color:var(--navy);line-height:1}
+.score .pred{display:inline-block;margin-top:8px;padding:5px 16px;border-radius:99px;font-weight:700;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.stats div{background:#f3f6ff;border-radius:10px;padding:10px;text-align:center}
+.stats b{display:block;font-size:1.4rem;color:var(--navy)}
+.idt{width:100%;border-collapse:collapse;margin-bottom:6px}
+.idt td{padding:5px 8px;border-bottom:1px solid var(--line);font-size:.95rem}
+.idt td:first-child{width:130px;color:var(--muted);font-weight:600}
+.rev{border:1.5px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;background:#fff;page-break-inside:avoid}
+.rev.ok{border-color:#9fd8b6}.rev.no{border-color:#f0b4ac}
+.rev .h{display:flex;justify-content:space-between;gap:8px;font-weight:700;margin-bottom:6px}
+.tag{font-size:.78rem;padding:2px 10px;border-radius:99px;color:#fff;white-space:nowrap;align-self:flex-start}
+.tag.ok{background:var(--ok)}.tag.no{background:var(--bad)}.tag.sk{background:#7a859f}
+.ro{padding:6px 10px;border-radius:7px;margin:4px 0;font-size:.95rem;border:1px solid transparent}
+.ro.c{background:var(--okbg);border-color:#9fd8b6;font-weight:600}
+.ro.w{background:var(--badbg);border-color:#f0b4ac}
+.pemb{background:#fff8e1;border-left:4px solid #f0b400;border-radius:6px;padding:10px 12px;margin-top:8px;font-size:.93rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+sup,sub{line-height:0}
+footer{text-align:center;color:var(--muted);font-size:.82rem;padding:10px}
+.printhead{display:none}
+@media print{
+  body{background:#fff;font-size:11pt}
+  header,.topbar,.actions,#screenForm,#screenQuiz,#screenLocked,footer,.noprint{display:none!important}
+  .wrap{max-width:none;padding:0}
+  .card{box-shadow:none;border:0;padding:0}
+  .printhead{display:block;text-align:center;border-bottom:2px solid var(--navy);margin-bottom:10px;padding-bottom:6px}
+  .printhead h1{margin:0;font-size:15pt;color:var(--navy)}
+  .printhead p{margin:2px 0 0;font-size:10pt}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kuis Fisika Dasar – Pertemuan 3</h1>
+  <p>GLB vs GLBB: Panduan Fundamental Gerak Industri • Universitas Bina Sarana Informatika</p>
+</header>
+
+<div class="topbar hidden" id="topbar">
+  <div class="in">
+    <span id="who"></span>
+    <span><b id="answeredCount">0</b>/30 terjawab</span>
+  </div>
+  <div class="bar" style="max-width:860px;margin:8px auto 0"><div id="barFill"></div></div>
+</div>
+
+<div class="wrap">
+
+  <!-- FORM IDENTITAS -->
+  <section class="card" id="screenForm">
+    <h2>Identitas Mahasiswa</h2>
+    <div class="info">
+      <b>Petunjuk:</b>
+      <ul>
+        <li>Kuis terdiri dari <b>30 soal pilihan ganda</b> (skor maksimal 100).</li>
+        <li>Pilih satu jawaban terbaik untuk setiap soal. Jawaban dapat diubah sebelum kuis dikirim.</li>
+        <li>Pembahasan dan nilai ditampilkan setelah kuis dikirim.</li>
+        <li>Kuis hanya dapat dikerjakan <b>satu kali</b> untuk setiap NIM pada perangkat ini.</li>
+      </ul>
+    </div>
+    <label for="nama">Nama Lengkap</label>
+    <input id="nama" type="text" placeholder="Masukkan nama lengkap" autocomplete="name">
+    <label for="nim">NIM</label>
+    <input id="nim" type="text" inputmode="numeric" placeholder="Masukkan NIM" autocomplete="off">
+    <label for="prodi">Program Studi</label>
+    <select id="prodi">
+      <option value="">— Pilih Program Studi —</option>
+      <option>Teknik Industri</option>
+      <option>Teknologi Komputer</option>
+      <option>Teknik Informatika</option>
+      <option>Sistem Informasi</option>
+      <option>Sistem Informasi Akuntansi</option>
+      <option>Sains Data</option>
+      <option>Teknologi Informasi</option>
+      <option>Lainnya</option>
+    </select>
+    <div id="prodiLainWrap" class="hidden">
+      <label for="prodiLain">Tuliskan Program Studi</label>
+      <input id="prodiLain" type="text" placeholder="Nama program studi">
+    </div>
+    <div class="err" id="formErr"></div>
+    <button class="btn" id="startBtn" style="margin-top:8px">Mulai Kuis →</button>
+  </section>
+
+  <!-- SUDAH PERNAH MENGERJAKAN -->
+  <section class="card hidden" id="screenLocked">
+    <h2>Kuis Sudah Dikerjakan</h2>
+    <p id="lockedMsg"></p>
+    <div class="actions">
+      <button class="btn" id="viewSaved">Lihat Hasil Tersimpan</button>
+      <button class="btn sec" id="backForm">Kembali</button>
+    </div>
+  </section>
+
+  <!-- KUIS -->
+  <section class="hidden" id="screenQuiz">
+    <div class="card">
+      <div class="qno" id="qno"></div>
+      <div class="qtext" id="qtext"></div>
+      <div id="opts"></div>
+      <div class="nav">
+        <button class="btn sec" id="prevBtn">← Sebelumnya</button>
+        <button class="btn" id="nextBtn">Berikutnya →</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1rem">Navigasi Soal</h2>
+      <div class="grid" id="grid"></div>
+      <div class="actions"><button class="btn green" id="submitBtn">Kirim Jawaban</button></div>
+      <div class="err" id="subErr"></div>
+    </div>
+  </section>
+
+  <!-- HASIL -->
+  <section class="hidden" id="screenResult">
+    <div class="printhead">
+      <h1>Hasil Kuis Fisika Dasar – Pertemuan 3 (GLB dan GLBB)</h1>
+      <p>Universitas Bina Sarana Informatika</p>
+    </div>
+    <div class="card">
+      <h2>Hasil Kuis</h2>
+      <table class="idt">
+        <tr><td>Nama</td><td id="rNama"></td></tr>
+        <tr><td>NIM</td><td id="rNim"></td></tr>
+        <tr><td>Program Studi</td><td id="rProdi"></td></tr>
+        <tr><td>Waktu Submit</td><td id="rTime"></td></tr>
+      </table>
+      <div class="score">
+        <div class="big"><span id="rScore">0</span><span style="font-size:1.4rem;color:var(--muted)">/100</span></div>
+        <span class="pred" id="rPred"></span>
+      </div>
+      <div class="stats">
+        <div><b id="rBenar" style="color:var(--ok)">0</b>Benar</div>
+        <div><b id="rSalah" style="color:var(--bad)">0</b>Salah</div>
+        <div><b id="rKosong">0</b>Tidak dijawab</div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="pdfBtn">🖨️ Simpan ke PDF</button>
+      </div>
+      <div class="info noprint">Pada jendela cetak, pilih <b>Save as PDF</b> / <b>Simpan sebagai PDF</b> pada bagian printer tujuan.</div>
+    </div>
+    <div class="card">
+      <h2>Pembahasan Soal</h2>
+      <div id="review"></div>
+    </div>
+  </section>
+
+</div>
+<footer>Fisika Dasar • Pertemuan 3: GLB dan GLBB • Universitas Bina Sarana Informatika</footer>
+
+<script>
+/* ===== BANK SOAL (30) — c = indeks jawaban benar (0=A,1=B,2=C,3=D) ===== */
+const Q = [
+ {q:"Dalam ilmu mekanika, kinematika mempelajari…",
+  o:["gerak benda dengan memperhitungkan gaya penyebabnya","gerak benda murni tanpa memperhatikan penyebabnya (gaya/massa)","kondisi benda diam dan keseimbangan struktur","hubungan antara torsi motor dan energi listrik"],c:1,
+  p:"<b>Kinematika</b> mempelajari gerak benda murni tanpa memperhatikan penyebabnya (gaya atau massa). Di sinilah letak analisis gerak lurus (GLB dan GLBB). Pilihan lain menggambarkan dinamika (memperhitungkan penyebab gerak) dan statika (benda diam/keseimbangan)."},
+ {q:"Contoh analisis yang termasuk <b>dinamika</b> adalah…",
+  o:["menghitung kecepatan conveyor dari jarak dan waktu","menggambar grafik posisi terhadap waktu","menghitung torsi motor atau gaya dorong yang menyebabkan gerak","menghitung kekuatan pilar pabrik yang diam"],c:2,
+  p:"Dinamika mempelajari gerak <i>dengan memperhitungkan penyebabnya</i>, misalnya torsi motor atau gaya dorong. Menghitung kecepatan/grafik adalah kinematika, sedangkan kekuatan pilar yang diam adalah statika."},
+ {q:"Cabang mekanika yang mempelajari kondisi benda diam dan keseimbangan struktur (misalnya kekuatan pilar pabrik) adalah…",
+  o:["Statika","Kinematika","Dinamika","Termodinamika"],c:0,
+  p:"<b>Statika</b> mempelajari benda dalam keadaan diam dan keseimbangan struktur, seperti kekuatan pilar pabrik."},
+ {q:"Berikut ini yang termasuk <b>besaran vektor</b> adalah…",
+  o:["Jarak","Kelajuan","Perlajuan","Perpindahan"],c:3,
+  p:"Besaran vektor memiliki nilai <b>dan arah</b>. Perpindahan, kecepatan, dan percepatan adalah vektor. Jarak, kelajuan, dan perlajuan adalah besaran skalar (hanya nilai)."},
+ {q:"Sebuah AGV bergerak lurus maju 30 m, kemudian mundur 10 m pada lintasan yang sama. Jarak dan perpindahan AGV berturut-turut adalah…",
+  o:["20 m dan 40 m","40 m dan 40 m","40 m dan 20 m","20 m dan 20 m"],c:2,
+  p:"Jarak = total lintasan = 30 + 10 = <b>40 m</b>. Perpindahan = selisih posisi awal dan akhir = 30 − 10 = <b>20 m</b> (searah gerak maju)."},
+ {q:"Sebuah AGV menempuh total lintasan 120 m dalam waktu 40 s. Kelajuan rata-ratanya adalah…",
+  o:["0,33 m/s","3 m/s","30 m/s","4.800 m/s"],c:1,
+  p:"Kelajuan = jarak total ÷ waktu = 120 ÷ 40 = <b>3 m/s</b>."},
+ {q:"Kecepatan didefinisikan sebagai…",
+  o:["perpindahan dibagi waktu","jarak total dibagi waktu","perubahan kelajuan dibagi selang waktu","perkalian jarak dan waktu"],c:0,
+  p:"<b>Kecepatan</b> (vektor) = perpindahan ÷ waktu. Jarak total ÷ waktu adalah kelajuan (skalar)."},
+ {q:"Percepatan adalah…",
+  o:["jarak lurus antara posisi awal dan akhir","jarak total dibagi waktu","perpindahan dibagi waktu","perubahan kecepatan dibagi selang waktu"],c:3,
+  p:"<b>Percepatan</b> (a) = perubahan kecepatan ÷ selang waktu, satuannya m/s<sup>2</sup>."},
+ {q:"Gerak Lurus Beraturan (GLB) adalah gerak pada lintasan lurus dengan…",
+  o:["percepatan konstan dan kecepatan berubah teratur","kecepatan konstan dan percepatan nol","kecepatan nol dan percepatan konstan","kecepatan berubah tidak teratur"],c:1,
+  p:"GLB: lintasan lurus, <b>kecepatan konstan</b>, sehingga <b>percepatan = 0</b>."},
+ {q:"Contoh penerapan GLB di industri adalah…",
+  o:["AGV saat start dan mengerem","Forklift yang sedang mengerem darurat","Conveyor belt pada kecepatan operasi stabil","Crane saat mulai mengangkat beban"],c:2,
+  p:"Conveyor belt yang beroperasi pada kecepatan stabil mendekati GLB. AGV start/mengerem, forklift mengerem, dan crane yang mulai bergerak mengalami perubahan kecepatan (GLBB)."},
+ {q:"Grafik kecepatan terhadap waktu (v–t) pada GLB berbentuk…",
+  o:["garis horizontal","garis miring naik","kurva parabola","garis vertikal"],c:0,
+  p:"Pada GLB kecepatan tidak berubah terhadap waktu, sehingga grafik v–t berupa <b>garis horizontal</b>."},
+ {q:"Grafik posisi terhadap waktu (s–t) pada GLB berbentuk garis lurus miring. Kemiringan (gradien) garis tersebut menyatakan…",
+  o:["percepatan","jarak total","kecepatan (v)","waktu tempuh"],c:2,
+  p:"Pada grafik s–t GLB, <b>kemiringan = v</b>. Jarak bertambah secara linear terhadap waktu."},
+ {q:"Sebuah conveyor bergerak dengan kecepatan konstan 1,5 m/s selama 40 s. Jarak yang ditempuh material adalah…",
+  o:["26,7 m","41,5 m","60 m","600 m"],c:2,
+  p:"GLB: s = v × t = 1,5 × 40 = <b>60 m</b>."},
+ {q:"Sebuah material di atas conveyor harus menempuh jarak 24 m dengan kecepatan konstan 2 m/s. Waktu yang diperlukan adalah…",
+  o:["48 s","12 s","22 s","26 s"],c:1,
+  p:"GLB: t = s ÷ v = 24 ÷ 2 = <b>12 s</b>."},
+ {q:"Perhitungan jarak pengereman AGV yang akurat di lantai pabrik terutama berdampak pada metrik industri…",
+  o:["Keselamatan (mencegah tabrakan)","Warna dan estetika mesin","Jumlah operator yang dipekerjakan","Konsumsi kertas administrasi"],c:0,
+  p:"Kalkulasi jarak pengereman (deselerasi GLBB) yang akurat <b>mencegah tabrakan</b> di lantai pabrik, sehingga berdampak langsung pada keselamatan kerja."},
+ {q:"Gerak Lurus Berubah Beraturan (GLBB) adalah gerak pada lintasan lurus dengan…",
+  o:["kecepatan konstan","percepatan konstan sehingga kecepatan berubah secara teratur","percepatan selalu nol","percepatan yang berubah-ubah acak"],c:1,
+  p:"GLBB: lintasan lurus dengan <b>percepatan konstan (a ≠ 0)</b>, sehingga kecepatan berubah secara teratur (bertambah atau berkurang)."},
+ {q:"Grafik percepatan terhadap waktu (a–t) pada GLBB (dengan a konstan) berbentuk…",
+  o:["garis miring naik","kurva parabola","titik tunggal","garis horizontal pada nilai a ≠ 0"],c:3,
+  p:"Karena percepatan konstan, grafik a–t berupa <b>garis horizontal</b> pada nilai a ≠ 0. (Pada GLB, garis horizontal berada tepat pada a = 0.)"},
+ {q:"Grafik posisi terhadap waktu (s–t) pada GLBB berbentuk…",
+  o:["garis lurus horizontal","kurva parabola","garis lurus miring","garis vertikal"],c:1,
+  p:"Karena s = v₀t + ½at<sup>2</sup> mengandung t<sup>2</sup>, grafik s–t GLBB berupa <b>kurva parabola</b>."},
+ {q:"Pada grafik v–t GLBB dengan percepatan konstan, kemiringan garis menyatakan…",
+  o:["kecepatan awal","jarak tempuh","waktu tempuh","percepatan (a)"],c:3,
+  p:"Kemiringan (gradien) grafik v–t = Δv/Δt = <b>percepatan (a)</b>. Garis miring linear menandakan percepatan konstan."},
+ {q:"Pada grafik v–t, luas area di bawah kurva menyatakan…",
+  o:["percepatan","total perpindahan (s)","kecepatan awal","massa benda"],c:1,
+  p:"Luas di bawah kurva v–t sama dengan <b>total perpindahan (s)</b>. Pada GLB berupa persegi panjang (v × t), pada GLBB berupa segitiga/trapesium."},
+ {q:"Sebuah AGV bergerak dengan kecepatan awal 2 m/s dan percepatan konstan 1,5 m/s<sup>2</sup> selama 4 s. Kecepatan akhirnya adalah…",
+  o:["6 m/s","7 m/s","8 m/s","12 m/s"],c:2,
+  p:"v<sub>t</sub> = v₀ + a·t = 2 + 1,5 × 4 = 2 + 6 = <b>8 m/s</b>."},
+ {q:"Sebuah AGV bergerak dengan v₀ = 1 m/s dan percepatan konstan 2 m/s<sup>2</sup> selama 6 s. Jarak yang ditempuh adalah…",
+  o:["13 m","36 m","37 m","42 m"],c:3,
+  p:"s = v₀t + ½at<sup>2</sup> = (1)(6) + ½(2)(6<sup>2</sup>) = 6 + 36 = <b>42 m</b>."},
+ {q:"Persamaan GLBB v<sub>t</sub><sup>2</sup> = v₀<sup>2</sup> + 2as sangat berguna ketika…",
+  o:["waktu tempuh (t) tidak diketahui","kecepatan konstan","percepatan sama dengan nol","massa benda diketahui"],c:0,
+  p:"Persamaan ini <b>tidak memuat waktu</b>, sehingga digunakan saat waktu tempuh (t) tidak diketahui."},
+ {q:"Sebuah AGV mulai dari diam dengan percepatan konstan 3 m/s<sup>2</sup> hingga menempuh jarak 24 m. Kecepatan akhirnya adalah…",
+  o:["8 m/s","10 m/s","12 m/s","72 m/s"],c:2,
+  p:"v<sub>t</sub><sup>2</sup> = v₀<sup>2</sup> + 2as = 0 + 2(3)(24) = 144, sehingga v<sub>t</sub> = <b>12 m/s</b>."},
+ {q:"Sebuah AGV bergerak dengan kecepatan 6 m/s lalu mengerem dengan perlambatan 3 m/s<sup>2</sup> hingga berhenti. Jarak pengeremannya adalah…",
+  o:["2 m","3 m","6 m","12 m"],c:2,
+  p:"v<sub>t</sub><sup>2</sup> = v₀<sup>2</sup> + 2as → 0 = 6<sup>2</sup> + 2(−3)s → 0 = 36 − 6s → s = <b>6 m</b>."},
+ {q:"Sebuah kendaraan industri bergerak 10 m/s lalu direm dengan perlambatan 2 m/s<sup>2</sup> sampai berhenti. Waktu pengeremannya adalah…",
+  o:["2 s","5 s","8 s","20 s"],c:1,
+  p:"v<sub>t</sub> = v₀ + a·t → 0 = 10 + (−2)t → t = <b>5 s</b>."},
+ {q:"Forklift bergerak 5 m/s. Waktu respons pengemudi sampai rem aktif adalah 0,6 s, dan selama itu forklift masih bergerak dengan kecepatan tetap. Jarak reaksinya adalah…",
+  o:["0,12 m","3 m","8,3 m","5,6 m"],c:1,
+  p:"Selama waktu respons gerak berupa GLB: d<sub>r</sub> = v × t<sub>r</sub> = 5 × 0,6 = <b>3 m</b>."},
+ {q:"Forklift bergerak 6 m/s dengan waktu respons 0,5 s dan perlambatan setelah rem aktif 3 m/s<sup>2</sup>. Jarak berhenti total (d<sub>stop</sub>) adalah…",
+  o:["6 m","3 m","12 m","9 m"],c:3,
+  p:"Jarak reaksi (GLB): d<sub>r</sub> = 6 × 0,5 = 3 m.<br>Jarak pengereman (GLBB): 0 = 6<sup>2</sup> + 2(−3)s → s = 6 m.<br>d<sub>stop</sub> = d<sub>r</sub> + d<sub>b</sub> = 3 + 6 = <b>9 m</b>."},
+ {q:"Hubungan antara GLB dan GLBB yang benar adalah…",
+  o:["GLB adalah kasus khusus GLBB dengan a = 0","GLBB adalah kasus khusus GLB dengan v = 0","GLB dan GLBB tidak berhubungan sama sekali","GLB terjadi hanya jika percepatan tidak nol"],c:0,
+  p:"Jika a = 0 pada persamaan GLBB, maka v<sub>t</sub> = v₀ dan s = v₀t, yaitu persamaan GLB. Jadi <b>GLB adalah kasus khusus GLBB dengan a = 0</b>."},
+ {q:"Dalam satu siklus perjalanan lengkap AGV (start → berjalan stabil → berhenti), urutan jenis geraknya yang tepat adalah…",
+  o:["GLB → GLBB → GLB","GLBB dipercepat (a &gt; 0) → GLB (a = 0) → GLBB diperlambat (a &lt; 0)","GLBB diperlambat → GLB → GLBB dipercepat","GLB sepanjang perjalanan"],c:1,
+  p:"Fase <b>start/akselerasi</b>: GLBB (v naik, a &gt; 0). Fase <b>cruising</b>: GLB (v konstan, a = 0). Fase <b>pengereman/deselerasi</b>: GLBB (v turun, a &lt; 0)."}
+];
+
+/* ===== STATE & UTIL ===== */
+const N = Q.length, LET = ["A","B","C","D"];
+const $ = id => document.getElementById(id);
+let user = null, ans = new Array(N).fill(null), cur = 0;
+const keyOf = nim => "kuis_fisdas_p3_glb_glbb_" + nim;
+function safeGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function safeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function show(id){["screenForm","screenLocked","screenQuiz","screenResult"].forEach(s=>$(s).classList.toggle("hidden",s!==id))}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+/* ===== FORM ===== */
+$("prodi").addEventListener("change",()=>$("prodiLainWrap").classList.toggle("hidden",$("prodi").value!=="Lainnya"));
+$("startBtn").addEventListener("click",()=>{
+  const nama=$("nama").value.trim(), nim=$("nim").value.trim();
+  let prodi=$("prodi").value;
+  if(prodi==="Lainnya") prodi=$("prodiLain").value.trim();
+  if(!nama||!nim||!prodi){$("formErr").textContent="Nama, NIM, dan Program Studi wajib diisi.";return}
+  if(!/^[0-9A-Za-z.\-]{5,}$/.test(nim)){$("formErr").textContent="Format NIM tidak valid.";return}
+  $("formErr").textContent="";
+  user={nama,nim,prodi};
+  const saved=safeGet(keyOf(nim));
+  if(saved){
+    $("lockedMsg").innerHTML="NIM <b>"+esc(nim)+"</b> sudah pernah mengerjakan kuis ini pada perangkat ini. Kuis hanya dapat dikerjakan satu kali.";
+    show("screenLocked");return;
+  }
+  ans=new Array(N).fill(null);cur=0;
+  $("who").innerHTML="<b>"+esc(nama)+"</b> • "+esc(nim);
+  $("topbar").classList.remove("hidden");
+  buildGrid();render();show("screenQuiz");window.scrollTo(0,0);
+});
+$("backForm").addEventListener("click",()=>show("screenForm"));
+$("viewSaved").addEventListener("click",()=>{
+  try{const d=JSON.parse(safeGet(keyOf(user.nim)));showResult(d);}catch(e){alert("Data tersimpan tidak dapat dibaca.")}
+});
+
+/* ===== QUIZ ===== */
+function buildGrid(){
+  $("grid").innerHTML=Q.map((_,i)=>'<button data-i="'+i+'">'+(i+1)+'</button>').join("");
+  $("grid").onclick=e=>{const b=e.target.closest("button");if(b){cur=+b.dataset.i;render();window.scrollTo(0,0)}};
+}
+function render(){
+  const q=Q[cur];
+  $("qno").textContent="Soal "+(cur+1)+" dari "+N;
+  $("qtext").innerHTML=q.q;
+  $("opts").innerHTML=q.o.map((t,i)=>'<div class="opt'+(ans[cur]===i?' sel':'')+'" data-i="'+i+'"><span class="l">'+LET[i]+'</span><span>'+t+'</span></div>').join("");
+  $("opts").onclick=e=>{const o=e.target.closest(".opt");if(!o)return;ans[cur]=+o.dataset.i;render()};
+  $("prevBtn").disabled=cur===0;
+  $("nextBtn").disabled=cur===N-1;
+  const done=ans.filter(a=>a!==null).length;
+  $("answeredCount").textContent=done;
+  $("barFill").style.width=(done/N*100)+"%";
+  [...$("grid").children].forEach((b,i)=>{b.classList.toggle("ans",ans[i]!==null);b.classList.toggle("cur",i===cur)});
+}
+$("prevBtn").onclick=()=>{if(cur>0){cur--;render();window.scrollTo(0,0)}};
+$("nextBtn").onclick=()=>{if(cur<N-1){cur++;render();window.scrollTo(0,0)}};
+$("submitBtn").onclick=()=>{
+  const un=ans.map((a,i)=>a===null?i+1:null).filter(Boolean);
+  let msg="Kirim jawaban sekarang? Jawaban tidak dapat diubah setelah dikirim.";
+  if(un.length) msg="Masih ada "+un.length+" soal belum dijawab (no. "+un.join(", ")+").\n\nKirim jawaban sekarang? Jawaban tidak dapat diubah setelah dikirim.";
+  if(!confirm(msg))return;
+  const data={user,ans:ans.slice(),time:new Date().toISOString()};
+  safeSet(keyOf(user.nim),JSON.stringify(data));
+  showResult(data);
+};
+
+/* ===== HASIL ===== */
+function predikat(s){
+  if(s>=85)return["Sangat Baik","#14804a"];
+  if(s>=70)return["Baik","#1d3f9a"];
+  if(s>=55)return["Cukup","#d9a400"];
+  return["Perlu Belajar Lagi","#c0392b"];
+}
+function showResult(d){
+  const a=d.ans;let benar=0,kosong=0;
+  a.forEach((x,i)=>{if(x===null)kosong++;else if(x===Q[i].c)benar++});
+  const salah=N-benar-kosong, score=Math.round(benar/N*1000)/10;
+  const [pr,col]=predikat(score);
+  $("rNama").textContent=d.user.nama;$("rNim").textContent=d.user.nim;$("rProdi").textContent=d.user.prodi;
+  $("rTime").textContent=new Date(d.time).toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"});
+  $("rScore").textContent=Number.isInteger(score)?score:score.toFixed(1);
+  $("rPred").textContent=pr;$("rPred").style.background=col;
+  $("rBenar").textContent=benar;$("rSalah").textContent=salah;$("rKosong").textContent=kosong;
+  $("review").innerHTML=Q.map((q,i)=>{
+    const u=a[i],ok=u===q.c,st=u===null?"sk":ok?"ok":"no";
+    const opts=q.o.map((t,j)=>{
+      let cls="ro",mark="";
+      if(j===q.c){cls+=" c";mark=" ✔ (jawaban benar)"}
+      else if(j===u){cls+=" w";mark=" ✘ (jawaban Anda)"}
+      return '<div class="'+cls+'"><b>'+LET[j]+'.</b> '+t+mark+'</div>';
+    }).join("");
+    return '<div class="rev '+(u===null?'':ok?'ok':'no')+'"><div class="h"><span>Soal '+(i+1)+'</span><span class="tag '+st+'">'+(u===null?"Tidak dijawab":ok?"Benar":"Salah")+'</span></div>'
+      +'<div style="margin-bottom:6px">'+q.q+'</div>'+opts+'<div class="pemb"><b>Pembahasan:</b> '+q.p+'</div></div>';
+  }).join("");
+  $("topbar").classList.add("hidden");
+  show("screenResult");window.scrollTo(0,0);
+}
+$("pdfBtn").onclick=()=>{
+  const t=document.title;
+  document.title="Hasil_Kuis_Fisika_P3_"+(user?user.nim:"")+"_"+(user?user.nama.replace(/\s+/g,"_"):"");
+  window.print();
+  setTimeout(()=>document.title=t,500);
+};
+</script>
+</body>
+</html>
